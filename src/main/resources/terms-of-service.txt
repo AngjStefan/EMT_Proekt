@@ -1,0 +1,21 @@
+These Terms of Service govern your use of ProductInfoBot. By accessing product data through the ChatBot, you agree to these terms.
+
+1. Accessing Product Information
+- ProductInfoBot provides product availability and pricing details based on entries from its internal database.
+- To retrieve product data, enter the product's name and specify your request.
+- Product data includes: Market Name (location where the product is available) and Price of the product in that specific market (the price is in the currency MKD).
+
+2. Limitations of Use
+- Users cannot modify, delete, or update any product information stored in the database.
+- ProductInfoBot does not support transactional features such as purchasing or ordering.
+
+3. User Responsibilities
+- Use the ChatBot in accordance with applicable laws and ethical guidelines.
+- Do not attempt to exploit, extract, or interfere with backend systems or product listings.
+- Misuse of the service may result in revoked access.
+
+4. Data Accuracy & Availability
+- ProductInfoBot aims to provide reliable data but does not guarantee completeness or real-time updates.
+- Market availability and pricing are subject to change based on external providers or sources.
+
+
