@@ -1,0 +1,4 @@
+docker exec -it ollama ollama pull deepseek-r1:1.5b
+docker exec -it ollama ollama run deepseek-r1:1.5b
+
+Ollama caches models under /root/.ollama, so on every restart the model is available instantly.
