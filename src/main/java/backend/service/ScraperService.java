@@ -18,9 +18,11 @@ import java.util.Optional;
 public class ScraperService {
 
     private final ProductService productService;
+    private final AiHelperService aiHelper;
 
-    public ScraperService(ProductService productService) {
+    public ScraperService(ProductService productService, AiHelperService aiHelperService) {
         this.productService = productService;
+        this.aiHelper = aiHelperService;
     }
 
     public Boolean scrapeProducts() {
@@ -59,9 +61,10 @@ public class ScraperService {
                             Optional<Product> product1 = productService.findByNameAndMarket(name, market);
                             if(product1.isEmpty()){
                                 productService.save(new Product(name, price_in_mkd, market));
+                                aiHelper.embedProduct(name);
                             }
                             else{
-                                product1.get().setPrice_in_mkd(price_in_mkd);
+                                product1.get().setPriceInMkd(price_in_mkd);
                                 productService.update(product1.get().getId(), product1.get());
                             }
                         }

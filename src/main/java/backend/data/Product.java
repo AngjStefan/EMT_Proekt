@@ -1,9 +1,6 @@
 package backend.data;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
@@ -16,7 +13,8 @@ public class Product {
 
     private String name;
 
-    private Integer price_in_mkd;
+    @Column(name = "price_in_mkd")
+    private Integer priceInMkd;
 
     private String market;
 
@@ -24,7 +22,7 @@ public class Product {
 
     public Product(String name, Integer price_in_mkd, String market) {
         this.name = name;
-        this.price_in_mkd = price_in_mkd;
+        this.priceInMkd = price_in_mkd;
         this.market = market;
     }
 }

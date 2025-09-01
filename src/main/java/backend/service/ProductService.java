@@ -27,6 +27,7 @@ public class ProductService {
         return productRepository.findAllByName(productName);
     }
 
+
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
@@ -39,9 +40,13 @@ public class ProductService {
         return productRepository.findProductByNameAndMarket(productName, marketName);
     }
 
+    public Optional<Product> findByNameOrderByPriceAsc(String productName) {
+        return productRepository.findByNameOrderByPriceInMkdAsc(productName);
+    }
+
     public Optional<Product> save(Product product) {
         if (product != null) {
-            return Optional.of(productRepository.save(new Product(product.getName(), product.getPrice_in_mkd(), product.getMarket())));
+            return Optional.of(productRepository.save(new Product(product.getName(), product.getPriceInMkd(), product.getMarket())));
         }
         return Optional.empty();
     }
@@ -50,10 +55,18 @@ public class ProductService {
         return findById(id)
                 .map(existingProduct -> {
                     existingProduct.setName(product.getName());
-                    existingProduct.setPrice_in_mkd(product.getPrice_in_mkd());
+                    existingProduct.setPriceInMkd(product.getPriceInMkd());
                     existingProduct.setMarket(product.getMarket());
                     return productRepository.save(existingProduct);
                 });
+    }
+
+    public List<String> findAllUniqueProductNames() {
+        return productRepository.findDistinctProductNames();
+    }
+
+    public List<String> findAllUniqueProductMarketNames() {
+        return productRepository.findDistinctProductMarkets();
     }
 
     public void deleteAll() {

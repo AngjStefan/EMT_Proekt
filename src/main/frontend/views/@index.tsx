@@ -73,7 +73,7 @@ export default function Index() {
         <h3>Product database</h3>
         <Grid items={products} className="flex-shrink-0">
           <GridColumn path="name" autoWidth header="Name"/>
-          <GridColumn path="price_in_mkd" autoWidth header="Price (MKD)"/>
+          <GridColumn path="priceInMkd" autoWidth header="Price (MKD)"/>
           <GridColumn path="market" autoWidth header="Market"/>
         </Grid>
       </div>

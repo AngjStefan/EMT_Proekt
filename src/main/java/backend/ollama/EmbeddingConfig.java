@@ -12,16 +12,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EmbeddingConfig {
 
+// - Includes Document splitter - not necessary in our case
+//    @Bean
+//    public EmbeddingStoreIngestor embeddingStoreIngestor(EmbeddingModel embeddingModel,
+//                                                         EmbeddingStore<TextSegment> embeddingStore) {
+//        // Creates a document ingestor that:
+//        // - Splits documents into chunks of 1000 tokens
+//        // - Uses 100 tokens overlap to maintain context between chunks
+//        // - Uses the provided embedding model to convert text to vectors
+//        // - Stores the vectors in the provided embedding store
+//        return EmbeddingStoreIngestor.builder()
+//                .documentSplitter(DocumentSplitters.recursive(50, 0)) // 1000, 100
+//                .embeddingModel(embeddingModel)
+//                .embeddingStore(embeddingStore)
+//                .build();
+//    }
+
     @Bean
     public EmbeddingStoreIngestor embeddingStoreIngestor(EmbeddingModel embeddingModel,
                                                          EmbeddingStore<TextSegment> embeddingStore) {
         // Creates a document ingestor that:
-        // - Splits documents into chunks of 1000 tokens
-        // - Uses 100 tokens overlap to maintain context between chunks
         // - Uses the provided embedding model to convert text to vectors
         // - Stores the vectors in the provided embedding store
         return EmbeddingStoreIngestor.builder()
-                .documentSplitter(DocumentSplitters.recursive(50, 0)) // 1000, 100
                 .embeddingModel(embeddingModel)
                 .embeddingStore(embeddingStore)
                 .build();
