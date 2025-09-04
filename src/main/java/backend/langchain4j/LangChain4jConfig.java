@@ -1,71 +1,75 @@
-//package backend.langchain4j;
-//
-//import dev.langchain4j.data.segment.TextSegment;
-//import dev.langchain4j.memory.chat.ChatMemoryProvider;
-//import dev.langchain4j.memory.chat.TokenWindowChatMemory;
-//import dev.langchain4j.model.Tokenizer;
-//import dev.langchain4j.model.chat.StreamingChatModel;
-//import dev.langchain4j.model.embedding.EmbeddingModel;
-//import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
-//import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-//import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
-//import dev.langchain4j.model.googleai.GoogleAiGeminiTokenCountEstimator;
-//import dev.langchain4j.rag.content.retriever.ContentRetriever;
-//import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-//import dev.langchain4j.store.embedding.EmbeddingStore;
-//import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//
-//@Configuration
-//public class LangChain4jConfig {
-//
-//    @Bean
-//    Tokenizer tokenizer() {
-//        return GoogleAiGeminiTokenizer.builder()
-//                .apiKey(System.getenv("GOOGLE_API_KEY"))
-//                .modelName("gemini-2.0-flash")
-//                .build();
-//    }
-//
-//    @Bean
-//    ChatMemoryProvider chatMemoryProvider(GoogleAiGeminiTokenCountEstimator estimator) {
-//        return chatId -> TokenWindowChatMemory.withMaxTokens(1000, estimator);
-//    }
-//
-//    @Bean
-//    EmbeddingStore<TextSegment> embeddingStore() {
+package backend.langchain4j;
+
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
+import dev.langchain4j.memory.chat.TokenWindowChatMemory;
+import dev.langchain4j.model.TokenCountEstimator;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import dev.langchain4j.model.openai.OpenAiTokenCountEstimator;
+import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class LangChain4jConfig {
+
+    @Bean
+    ChatMemoryProvider chatMemoryProvider(TokenCountEstimator tokenCountEstimator) {
+        return chatId -> TokenWindowChatMemory.withMaxTokens(1000, tokenCountEstimator);
+    }
+
+    @Bean
+    EmbeddingStore<TextSegment> embeddingStore() {
 //        return new InMemoryEmbeddingStore<>();
-//    }
-//
-//    @Bean
-//    StreamingChatModel streamingChatModel() {
-//        return GoogleAiGeminiStreamingChatModel.builder()
-//                .apiKey(System.getenv("GOOGLE_API_KEY"))
-//                .modelName("gemini-2.0-flash")
-//                .temperature(0.0)
-//                .build();
-//    }
-//
-//    @Bean
-//    EmbeddingModel embeddingModel() {
-//        return GoogleAiEmbeddingModel.builder()
-//                .apiKey(System.getenv("GOOGLE_API_KEY"))
-//                .modelName("text-embedding-004")
-//                .build();
-//    }
-//
-//
-//    @Bean
-//    ContentRetriever contentRetriever(
-//            EmbeddingStore<TextSegment> embeddingStore,
-//            EmbeddingModel embeddingModel
-//    ) {
-//        return EmbeddingStoreContentRetriever.builder()
-//                .embeddingStore(embeddingStore)
-//                .embeddingModel(embeddingModel)
-//                .maxResults(3) //2
-//                .minScore(0.6)
-//                .build();
-//    }
-//}
+        return PgVectorEmbeddingStore.builder()
+                .host("localhost")
+                .port(3456)
+                .database("ollama_db")
+                .user("emt")
+                .password("emt")
+                .table("my_embeddings")
+                .dimension(embeddingModel().dimension())  // Automatically matches model's embedding size
+                .createTable(true)  // Creates table if it doesn't exist
+                .build();
+    }
+
+    @Bean
+    public TokenCountEstimator tokenCountEstimator() {
+        return new OpenAiTokenCountEstimator("text-embedding-3-small");
+    }
+
+    @Bean
+    public EmbeddingModel embeddingModel() {
+        return OpenAiEmbeddingModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .modelName("text-embedding-3-small")
+                .build();
+    }
+
+    @Bean
+    public StreamingChatModel streamingChatModel() {
+        return OpenAiStreamingChatModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .modelName("gpt-4-turbo")
+                .temperature(0.0)
+                .build();
+    }
+
+    @Bean
+    EmbeddingStoreContentRetriever contentRetriever(
+            EmbeddingStore<TextSegment> embeddingStore,
+            EmbeddingModel embeddingModel
+    ) {
+        return EmbeddingStoreContentRetriever.builder()
+                .embeddingStore(embeddingStore)
+                .embeddingModel(embeddingModel)
+                .maxResults(3)
+                .minScore(0.6)
+                .build();
+    }
+}

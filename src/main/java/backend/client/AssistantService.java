@@ -1,6 +1,6 @@
 package backend.client;
 
-import backend.ollama.AiChatService;
+import backend.langchain4j.LangChain4jAssistant;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import reactor.core.publisher.Flux;
@@ -9,9 +9,9 @@ import reactor.core.publisher.Flux;
 @AnonymousAllowed
 public class AssistantService {
 
-    private final AiChatService aiChatService;
+    private final LangChain4jAssistant aiChatService;
 
-    public AssistantService(AiChatService aiChatService) {
+    public AssistantService(LangChain4jAssistant aiChatService) {
         this.aiChatService = aiChatService;
     }
 

@@ -14,10 +14,13 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductStandardizationService standardization;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ProductStandardizationService productStandardizationService) {
         this.productRepository = productRepository;
+        this.standardization = productStandardizationService;
     }
+
 
     public List<Product> findAll() {
         return productRepository.findAll();
@@ -26,7 +29,6 @@ public class ProductService {
     public List<Product> findAllByName(String productName) {
         return productRepository.findAllByName(productName);
     }
-
 
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
@@ -46,15 +48,17 @@ public class ProductService {
 
     public Optional<Product> save(Product product) {
         if (product != null) {
-            return Optional.of(productRepository.save(new Product(product.getName(), product.getPriceInMkd(), product.getMarket())));
+            String productName = standardization.standardize(product.getName());
+            return Optional.of(productRepository.save(new Product(productName, product.getPriceInMkd(), product.getMarket())));
         }
         return Optional.empty();
     }
 
     public Optional<Product> update(Long id, Product product) {
+        String productName = standardization.standardize(product.getName());
         return findById(id)
                 .map(existingProduct -> {
-                    existingProduct.setName(product.getName());
+                    existingProduct.setName(productName);
                     existingProduct.setPriceInMkd(product.getPriceInMkd());
                     existingProduct.setMarket(product.getMarket());
                     return productRepository.save(existingProduct);

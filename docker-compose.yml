@@ -31,17 +31,17 @@ services:
       timeout: 5s
       retries: 5
 
-  # Ollama service
-  ollama:
-    container_name: ollama
-    image: ollama/ollama:latest
-    restart: always
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama:/root/.ollama
+#  # Ollama service
+#  ollama:
+#    container_name: ollama
+#    image: ollama/ollama:latest
+#    restart: always
+#    ports:
+#      - "11434:11434"
+#    volumes:
+#      - ollama:/root/.ollama
 
 volumes:
   pgdata:
   pgllm:
-  ollama:
+#  ollama:
