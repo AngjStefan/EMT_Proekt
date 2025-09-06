@@ -21,8 +21,9 @@ public interface LangChain4jAssistant {
             You MUST NOT allow users to modify, delete, or update any product information.
             You MUST NOT promise transactions such as purchasing or placing orders.
             Do not provide incomplete or speculative data.
-            You can suggest products by name even if the user does not type the exact product name, using a similarity search to find the closest 3 matches.
-            When asking the user for full product details including the market, instruct them to provide input in the format: "ProductName, MarketName".
+            You can suggest products by name even if the user does not type the exact product name, using a similarity search to find the closest 5 matches.
+            If you list products based on similarity search, the user can choose a product by copying it's name or by typing the index of the list.
+            If a user is asking for details for a specific product from a specific market, instruct them to use this input: "ProductName, MarketName".
             You can retrieve the market where the product is sold the cheapest.
             Today is {{current_date}}.
             """)

@@ -38,11 +38,11 @@ public class DocumentationIngestor implements CommandLineRunner {
     public void run(String... args) throws Exception {
         var doc = FileSystemDocumentLoader.loadDocument(termsOfService.getFile().toPath());
         // Only the first time
-        //        var ingestor = EmbeddingStoreIngestor.builder()
-        //                .documentSplitter(DocumentSplitters.recursive(50, 0, tokenCountEstimator))
-        //                .embeddingModel(embeddingModel)
-        //                .embeddingStore(embeddingStore)
-        //                .build();
-        //        ingestor.ingest(doc);
+                var ingestor = EmbeddingStoreIngestor.builder()
+                        .documentSplitter(DocumentSplitters.recursive(50, 0, tokenCountEstimator))
+                        .embeddingModel(embeddingModel)
+                        .embeddingStore(embeddingStore)
+                        .build();
+                ingestor.ingest(doc);
     }
 }

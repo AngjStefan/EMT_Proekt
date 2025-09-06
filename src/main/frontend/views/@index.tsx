@@ -1,3 +1,4 @@
+import { Button } from '@vaadin/react-components/Button';
 import {useEffect, useState} from "react";
 import {AssistantService, ProductWebService} from "Frontend/generated/endpoints";
 import {GridColumn} from "@vaadin/react-components/GridColumn";
@@ -12,10 +13,11 @@ import Product from "Frontend/generated/backend/data/Product";
 export default function Index() {
   const [chatId, setChatId] = useState(nanoid());
   const [working, setWorking] = useState(false);
+  const [showDatabase, setShowDatabase] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [messages, setMessages] = useState<MessageItem[]>([{
     role: 'assistant',
-    content: 'Welcome to ProductInfoBot! How can I help you?'
+    content: 'Welcome! I\'m your virtual assistant. How can I help you?'
   }]);
 
   useEffect(() => {
@@ -45,39 +47,103 @@ export default function Index() {
     });
     let first = true;
     AssistantService.chat(chatId, message)
-      .onNext(token => {
-        if (first && token) {
-          addMessage({
-            role: 'assistant',
-            content: token
-          });
+        .onNext(token => {
+          if (first && token) {
+            addMessage({
+              role: 'assistant',
+              content: token
+            });
 
-          first = false;
-        } else {
-          appendToLatestMessage(token);
-        }
-      })
-      .onError(() => setWorking(false))
-      .onComplete(() => setWorking(false));
+            first = false;
+          } else {
+            appendToLatestMessage(token);
+          }
+        })
+        .onError(() => setWorking(false))
+        .onComplete(() => setWorking(false));
   }
 
-
+//  style={{ marginLeft: "15%", marginRight: "15%" }}
+    // marginBottom: '3.6rem'
   return (
-    <SplitLayout className="h-full">
-      <div className="flex flex-col gap-m p-m box-border h-full" style={{width: '30%'}}>
-        <h3>Product info chat support</h3>
-        <MessageList messages={messages} className="flex-grow overflow-scroll"/>
-        <MessageInput onSubmit={e => sendMessage(e.detail.value)} className="px-0"/>
-      </div>
-      <div className="flex flex-col gap-m p-m box-border" style={{width: '70%'}}>
-        <h3>Product database</h3>
-        <Grid items={products} className="flex-shrink-0">
-          <GridColumn path="name" autoWidth header="Name"/>
-          <GridColumn path="priceInMkd" autoWidth header="Price (MKD)"/>
-          <GridColumn path="market" autoWidth header="Market"/>
-        </Grid>
-      </div>
-    </SplitLayout>
+      <div
+          style={{
+            display: 'flex',
+            height: '100%',           // full viewport height
+            justifyContent: 'center',  // horizontal centering
+          }}
+      >
+        <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              padding: '1rem',
+              boxSizing: 'border-box',
+              width: '40%',
+              marginTop: '1rem'
+            }}
+        >
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <img
+                    src="images/vr-asistant.png"
+                    alt="GPT-4 Turbo"
+                    style={{ width: '80%', height: 'auto', marginBottom: '3.6rem' }}
+                />
+            </div>
+          
 
+          <Button theme="tertiary" onClick={() => setShowDatabase(!showDatabase)}>
+            {showDatabase ? 'Hide Database' : 'Show Database'}
+          </Button>
+
+          <MessageList messages={messages} className="flex-grow overflow-scroll"/>
+          <MessageInput onSubmit={e => sendMessage(e.detail.value)}/>
+        </div>
+
+        {/* Right panel */}
+        {showDatabase && (
+            <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  padding: '1rem',
+                  boxSizing: 'border-box',
+                  width: '45%',
+                  marginTop: '1rem'
+                }}
+            >
+              <h2 style={{color: 'hsla(213, 100%, 43%, 1)', textAlign: 'center'}}>База на податоци</h2>
+              <Grid items={products}>
+                <GridColumn
+                    path="name"
+                    autoWidth
+                    header={
+                      <span style={{ color: 'hsla(213, 100%, 43%, 1)', fontWeight: 'bold' }}>Име</span>
+                }
+                />
+                <GridColumn
+                    path="priceInMkd"
+                    autoWidth
+                    header={
+                      <span style={{ color: 'hsla(213, 100%, 43%, 1)', fontWeight: 'bold' }}>Цена (ден.)</span>
+                    }
+                />
+                <GridColumn
+                    path="market"
+                    autoWidth
+                    header={
+                      <span style={{ color: 'hsla(213, 100%, 43%, 1)', fontWeight: 'bold' }}>Маркет</span>
+                    }
+                />
+              </Grid>
+            </div>
+        )}
+      </div>
   );
 }

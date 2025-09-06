@@ -6,6 +6,7 @@ import backend.service.ProductService;
 import dev.langchain4j.agent.tool.Tool;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,17 +15,32 @@ public class LangChain4jTools {
 
     private final ProductService service;
     private final AiHelperService aiHelper;
+    private List<String> lastSearchResults;
 
     public LangChain4jTools(ProductService service, AiHelperService aiHelper) {
         this.service = service;
         this.aiHelper = aiHelper;
+        this.lastSearchResults = new ArrayList<>();
     }
 
     @Tool("""
             Retrieves data about all products with a certain name,
             such as the market where the products are available and the price of the products in each market (in the currency MKD).
+            If the input is a number, it will use the last shown list of product names.
             """)
-    public List<Product> findAllProductsByName(String productName) {
+    public List<Product> findAllProductsByName(String query) {
+        String productName = query.toUpperCase();
+
+        if (query.matches("\\d+")) {
+            int index = Integer.parseInt(query);
+            if (index >= 0 && index < lastSearchResults.size()) {
+                productName = lastSearchResults.get(index);
+            } else {
+                throw new IllegalArgumentException("Index out of bounds: " + index);
+            }
+        }
+
+
         return service.findAllByName(productName);
     }
 
@@ -73,9 +89,9 @@ public class LangChain4jTools {
 
 
     @Tool("""
-            Retrieves the 3 most similar product names to the given query string.
+            Retrieves the 5 most similar product names to the given query string.
             """)
     public List<String> findClosestProductNames(String query) {
-        return aiHelper.findClosestProducts(query);
+        return lastSearchResults = aiHelper.findClosestProducts(query);
     }
 }
