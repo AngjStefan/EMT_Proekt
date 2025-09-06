@@ -33,8 +33,8 @@ public class LangChain4jConfig {
                 .user("emt")
                 .password("emt")
                 .table("my_embeddings")
-                .dimension(embeddingModel().dimension())  // Automatically matches model's embedding size
-                .createTable(true)  // Creates table if it doesn't exist
+                .dimension(embeddingModel().dimension())
+                .createTable(true)
                 .build();
     }
 

@@ -4,8 +4,10 @@ import backend.data.Product;
 import backend.data.ProductRepository;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.Endpoint;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,10 +34,6 @@ public class ProductService {
 
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
-    }
-
-    public Optional<Product> findByName(String productName) {
-        return productRepository.findProductByName(productName);
     }
 
     public Optional<Product> findByNameAndMarket(String productName, String marketName) {
@@ -73,7 +71,13 @@ public class ProductService {
         return productRepository.findDistinctProductMarkets();
     }
 
-    public List<Product> searchProductsbyName (String name) { return  productRepository.findByNameContainingIgnoreCase(name);}
+    public Page<Product> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    public Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable) {
+        return productRepository.findByNameContainingIgnoreCase(name, pageable);
+    }
 
     public void deleteAll() {
         productRepository.deleteAll();
