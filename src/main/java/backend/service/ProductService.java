@@ -73,6 +73,8 @@ public class ProductService {
         return productRepository.findDistinctProductMarkets();
     }
 
+    public List<Product> searchProductsbyName (String name) { return  productRepository.findByNameContainingIgnoreCase(name);}
+
     public void deleteAll() {
         productRepository.deleteAll();
     }

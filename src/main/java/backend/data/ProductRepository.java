@@ -21,4 +21,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<String> findDistinctProductMarkets();
 
     Optional<Product> findByNameOrderByPriceInMkdAsc(String name);
+
+    List<Product> findByNameContainingIgnoreCase(String name);
 }

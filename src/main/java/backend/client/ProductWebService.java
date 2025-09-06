@@ -20,4 +20,8 @@ public class ProductWebService {
     public List<Product> getProducts() {
         return productService.findAll();
     }
+
+    public List<Product> searchProductsbyName(String name) {
+        return productService.searchProductsbyName(name);
+    }
 }
