@@ -29,7 +29,7 @@ export default function Index() {
     const pageSize = 20;
     const [messages, setMessages] = useState<MessageItem[]>([{
         role: 'assistant',
-        content: 'Welcome! I\'m your virtual assistant. How can I help you?'
+        content: 'Здраво! Како можам да ти помогнам?'
     }]);
 
     // Fetch products whenever currentPage or searchText changes

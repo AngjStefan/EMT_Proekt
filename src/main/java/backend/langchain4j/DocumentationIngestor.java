@@ -43,6 +43,6 @@ public class DocumentationIngestor implements CommandLineRunner {
                         .embeddingModel(embeddingModel)
                         .embeddingStore(embeddingStore)
                         .build();
-                ingestor.ingest(doc);
+//                ingestor.ingest(doc);
     }
 }

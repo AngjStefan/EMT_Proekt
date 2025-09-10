@@ -18,7 +18,7 @@ public class AssistantService {
     }
 
     public Flux<String> chat(String chatId, String userMessage) {
-        return aiChatService.chat(chatId, userMessage)
+            return aiChatService.chat(chatId, userMessage)
                 .map(response -> {
                     if (containsUnrecognizedToolCall(response)) {
                         return "Sorry, I can only search Macedonian products.";
@@ -41,6 +41,4 @@ public class AssistantService {
 
         return knownTools.stream().noneMatch(response::contains);
     }
-
-
 }

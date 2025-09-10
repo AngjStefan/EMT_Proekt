@@ -7,6 +7,7 @@ import dev.langchain4j.agent.tool.Tool;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,20 +25,23 @@ public class LangChain4jTools {
     }
 
     @Tool("""
-            Retrieves data about all products with a certain name,
-            such as the market where the products are available and the price of the products in each market (in the currency MKD).
-            If the input is a number, it will use the last shown list of product names.
-            """)
+        It finds all the products matching the given query. It can also work with typing an integer (index),
+        if the lastSearchResults list isn't empty.
+        If it returns an empty list (didn't find a matching product) it calls the function 'findClosestProductNames'.
+        You CANNOT call this tool more than once before returning a response.
+        """)
     public List<Product> findAllProductsByName(String query) {
-        String productName = query.toUpperCase();
+        String productName;
 
-        if (query.matches("\\d+")) {
+        if (query.matches("\\d+")) { // number selection
             int index = Integer.parseInt(query);
             if (index >= 0 && index < lastSearchResults.size()) {
                 productName = lastSearchResults.get(index);
             } else {
-                throw new IllegalArgumentException("Index out of bounds: " + index);
+                throw new IllegalArgumentException("Надвор од граници: " + index);
             }
+        } else {
+            productName = query.trim().toUpperCase();
         }
 
 
@@ -45,22 +49,20 @@ public class LangChain4jTools {
     }
 
     @Tool("""
-            Retrieves the market where a product with a given name is sold at the lowest price (in MKD).
-            Returns a information about where the product is sold at the lowest price (in MKD).
+            It finds where the product is sold at the cheapest.
             """)
     public String findCheapestMarketForProduct(String productName) {
         Optional<Product> product = service.findByNameOrderByPriceAsc(productName);
 
         return product
-                .map(value -> "The product " + value.getName() + " is sold the cheapest at "
-                        + value.getMarket() + " at the price of " + value.getPriceInMkd() + " MKD.")
-                .orElse("The product could not be found.");
+                .map(value -> "Производот  " + value.getName() + " е најевтин во "
+                        + value.getMarket() + " по цена од " + value.getPriceInMkd() + " ден.")
+                .orElse("Производот не може да се пронајде.");
     }
 
     @Tool("""
-            Retrieves the full data about a products with a certain name and the market where it's sold.
-            The user must provide the input in the format: "ProductName, MarketName".
-            Example: "7 Days - Кроасани мини какао 60g, Кам".
+            It shows the product's details in a specific market.
+            The user's query must be like: "ИмеНаПроизвод, ИмеНаМаркет".
             """)
     public Optional<Product> findAllProductsByNameAndMarket(String query) {
         List<String> markets = service.findAllUniqueProductMarketNames();
@@ -71,7 +73,7 @@ public class LangChain4jTools {
 
         String[] parts = query.split(",", 2);
         if (parts.length < 2) {
-            throw new IllegalArgumentException("Invalid format. Expected: ProductName, MarketName");
+            throw new IllegalArgumentException("Невалиден формат. Очекувано: ИмеНаПроизвод, ИмеНаМаркет");
         }
 
         String productName = parts[0].trim();
@@ -81,7 +83,7 @@ public class LangChain4jTools {
 
 
         if (!normalizedMarkets.contains(market)) {
-            throw new IllegalArgumentException("Unknown market: " + market);
+            throw new IllegalArgumentException("Непознат маркет:" + market);
         }
 
         return service.findByNameAndMarket(productName, market);
@@ -89,7 +91,8 @@ public class LangChain4jTools {
 
 
     @Tool("""
-            Retrieves the 5 most similar product names to the given query string.
+            It returns the most similar products to the user's query.
+            The function is ONLY called if 'findAllProductsByName' returns an empty list.
             """)
     public List<String> findClosestProductNames(String query) {
         return lastSearchResults = aiHelper.findClosestProducts(query);
