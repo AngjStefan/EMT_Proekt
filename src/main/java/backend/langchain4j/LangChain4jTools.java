@@ -10,17 +10,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @Component
 public class LangChain4jTools {
 
     private final ProductService service;
     private final AiHelperService aiHelper;
+    private final ToolCallGuard toolCallGuard;
     private List<String> lastSearchResults;
 
-    public LangChain4jTools(ProductService service, AiHelperService aiHelper) {
+    public LangChain4jTools(ProductService service, AiHelperService aiHelper, ToolCallGuard toolCallGuard) {
         this.service = service;
         this.aiHelper = aiHelper;
+        this.toolCallGuard = toolCallGuard;
         this.lastSearchResults = new ArrayList<>();
     }
 
@@ -31,6 +35,14 @@ public class LangChain4jTools {
         You CANNOT call this tool more than once before returning a response.
         """)
     public List<Product> findAllProductsByName(String query) {
+        AtomicBoolean called = toolCallGuard.get();
+        if (called.getAndSet(true)) {
+            if (lastSearchResults.isEmpty()) {
+                return Collections.emptyList();
+            } else {
+                return service.findAllByName(lastSearchResults.get(0));
+            }
+        }
         String productName;
 
         if (query.matches("\\d+")) { // number selection
@@ -44,8 +56,15 @@ public class LangChain4jTools {
             productName = query.trim().toUpperCase();
         }
 
+        List<Product> results = service.findAllByName(productName);
 
-        return service.findAllByName(productName);
+        if (!results.isEmpty()) {
+            lastSearchResults = results.stream()
+                    .map(Product::getName)
+                    .collect(Collectors.toList());
+        }
+
+        return results;
     }
 
     @Tool("""

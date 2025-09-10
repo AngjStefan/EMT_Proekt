@@ -12,7 +12,7 @@ interface MessageProps {
 export default function Message({message}: MessageProps) {
   return (
     <div className="mb-l">
-      <div className="font-bold">{message.role === 'user' ? '🧑‍💻 You' : '🤖 Assistant'}</div>
+      <div className="font-bold">{message.role === 'user' ? '🧑‍💻 Вие' : '🤖 Асистент'}</div>
       <div>
         <Markdown>
           {message.content}

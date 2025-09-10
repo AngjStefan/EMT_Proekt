@@ -1,5 +1,5 @@
 services:
-  # DB For storing scraped products
+  # DB for storing scraped products
   db:
     image: postgres:17.4
     restart: always
@@ -13,7 +13,7 @@ services:
     ports:
       - "2345:5432"
 
-  # Db for the LLM
+  # DB for the LLM
   ollama_db:
     image: ankane/pgvector:latest
     restart: always
@@ -31,17 +31,6 @@ services:
       timeout: 5s
       retries: 5
 
-#  # Ollama service
-#  ollama:
-#    container_name: ollama
-#    image: ollama/ollama:latest
-#    restart: always
-#    ports:
-#      - "11434:11434"
-#    volumes:
-#      - ollama:/root/.ollama
-
 volumes:
   pgdata:
   pgllm:
-#  ollama:

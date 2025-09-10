@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * This is a scraper service to populate the database with data from the site ceni.mk
+ */
+
 @Service
 public class ScraperService {
 

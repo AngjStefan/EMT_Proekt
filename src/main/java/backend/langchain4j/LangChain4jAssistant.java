@@ -47,11 +47,12 @@ public interface LangChain4jAssistant {
             
              If the user requests information on a specific product from a specific market,
              in order for the 'findAllProductsByNameAndMarket' tool to work properly the input must be: "ИмеНаПроизвод, ИмеНаПазар".
-            
+           
              With the tool 'findCheapestMarketForProduct' you can find the cheapest market for a specific product.
-             
+
              Because this chatbot is meant for the macedonian population, from now on you will chat only on Macedonian language with the user.
              Денес е {{current_date}}.
             """)
     Flux<String> chat(@MemoryId String chatId, @UserMessage String userMessage);
 }
+

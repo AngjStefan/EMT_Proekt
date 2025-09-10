@@ -2,15 +2,13 @@ package backend.service;
 
 import backend.data.Product;
 import backend.data.ProductRepository;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.Endpoint;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -54,13 +52,12 @@ public class ProductService {
 
     public Optional<Product> update(Long id, Product product) {
         String productName = standardization.standardize(product.getName());
-        return findById(id)
-                .map(existingProduct -> {
-                    existingProduct.setName(productName);
-                    existingProduct.setPriceInMkd(product.getPriceInMkd());
-                    existingProduct.setMarket(product.getMarket());
-                    return productRepository.save(existingProduct);
-                });
+        return findById(id).map(existingProduct -> {
+            existingProduct.setName(productName);
+            existingProduct.setPriceInMkd(product.getPriceInMkd());
+            existingProduct.setMarket(product.getMarket());
+            return productRepository.save(existingProduct);
+        });
     }
 
     public List<String> findAllUniqueProductNames() {

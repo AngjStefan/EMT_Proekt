@@ -12,7 +12,7 @@ public class ScheduledTasks {
     this.scraperService = scraperService;
     }
 
-    @Scheduled(cron = "0 09 21 * * WED")
+    @Scheduled(cron = "0 0 4 * * *")
     public void scrapeProducts() {
         if(this.scraperService.scrapeProducts()){
             System.out.println("Product scraping finished successfully");

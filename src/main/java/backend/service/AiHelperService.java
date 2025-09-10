@@ -9,6 +9,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * This is a service to help with the embeddings.
+ *
+ * embedProduct - Creates an embedding for a given product's name.
+ * embedAllProducts - runs embedProduct for all unique product names.
+ * findClosestProducts - finds the closest products for a given query using EmbeddingStoreContentRetriever
+ */
+
 @Service
 public class AiHelperService {
 

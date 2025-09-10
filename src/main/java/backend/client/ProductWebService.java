@@ -19,7 +19,6 @@ public class ProductWebService {
         this.productService = productService;
     }
 
-    // Force Hilla to generate Product model
     public Product getProductExample() {
         return new Product();
     }

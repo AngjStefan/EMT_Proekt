@@ -25,7 +25,6 @@ public class LangChain4jConfig {
 
     @Bean
     EmbeddingStore<TextSegment> embeddingStore() {
-//        return new InMemoryEmbeddingStore<>();
         return PgVectorEmbeddingStore.builder()
                 .host("localhost")
                 .port(3456)
