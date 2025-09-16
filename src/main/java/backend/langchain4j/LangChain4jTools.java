@@ -1,6 +1,7 @@
 package backend.langchain4j;
 
 import backend.data.Product;
+import backend.data.ProductSearchResponseDTO;
 import backend.service.AiHelperService;
 import backend.service.ProductService;
 import dev.langchain4j.agent.tool.Tool;
@@ -11,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 @Component
 public class LangChain4jTools {
@@ -29,29 +29,32 @@ public class LangChain4jTools {
     }
 
     @Tool("""
-        It finds all the products matching the given query. It can also work with typing an integer (index),
-        if the lastSearchResults list isn't empty.
-        If it returns an empty list (didn't find a matching product) it calls the function 'findClosestProductNames'.
-        You CANNOT call this tool more than once before returning a response.
-        """)
-    public List<Product> findAllProductsByName(String query) {
+                Алатаката се користи за да се најдат продукти.
+                Доколку булеан вредноста 'exactMatch' е точна, тогаш е најден точен производ и треба да се испишат сите податоци за производите на корисникот
+                Доколку булеан вредноста 'exactMatch' не е точна, тогаш се најдени слични производи и треба да се испишат имињата на продуктите.
+                Оваа функција може да работи и со текст (име на продукт) и со бројка (индекс).
+            """)
+    public ProductSearchResponseDTO findProducts(String query) {
         AtomicBoolean called = toolCallGuard.get();
-        if (called.getAndSet(true)) {
-            if (lastSearchResults.isEmpty()) {
-                return Collections.emptyList();
-            } else {
-                return service.findAllByName(lastSearchResults.get(0));
-            }
-        }
-        String productName;
 
-        if (query.matches("\\d+")) { // number selection
+        // Trying to cancel the model from calling the tools in cycles, bug from hallucinating.
+        if (called.getAndSet(true)) {
+            return new ProductSearchResponseDTO(
+                    service.findAllByName(lastSearchResults.isEmpty() ? "" : lastSearchResults.get(0)),
+                    Collections.emptyList(), true
+            );
+        }
+
+        String productName;
+        if (query.matches("\\d+")) {
             int index = Integer.parseInt(query);
-            if (index >= 0 && index < lastSearchResults.size()) {
-                productName = lastSearchResults.get(index);
-            } else {
+            if (lastSearchResults == null || lastSearchResults.isEmpty()) {
+                throw new IllegalStateException("Нема претходни резултати за избор.");
+            }
+            if (index < 1 || index > lastSearchResults.size()) {
                 throw new IllegalArgumentException("Надвор од граници: " + index);
             }
+            productName = lastSearchResults.get(index - 1);
         } else {
             productName = query.trim().toUpperCase();
         }
@@ -59,19 +62,20 @@ public class LangChain4jTools {
         List<Product> results = service.findAllByName(productName);
 
         if (!results.isEmpty()) {
-            lastSearchResults = results.stream()
-                    .map(Product::getName)
-                    .collect(Collectors.toList());
-        }
+            return new ProductSearchResponseDTO(results, Collections.emptyList(), true);
+        } else {
 
-        return results;
+            lastSearchResults = aiHelper.findClosestProducts(query);
+
+            return new ProductSearchResponseDTO(Collections.emptyList(), lastSearchResults, false);
+        }
     }
 
     @Tool("""
-            It finds where the product is sold at the cheapest.
+            За побараниот продукт, го наоѓа и маркетот во кој се продава за најевтина цена.
             """)
     public String findCheapestMarketForProduct(String productName) {
-        Optional<Product> product = service.findByNameOrderByPriceAsc(productName);
+        Optional<Product> product = service.findByNameOrderByPriceAsc(productName.toUpperCase());
 
         return product
                 .map(value -> "Производот  " + value.getName() + " е најевтин во "
@@ -80,8 +84,8 @@ public class LangChain4jTools {
     }
 
     @Tool("""
-            It shows the product's details in a specific market.
-            The user's query must be like: "ИмеНаПроизвод, ИмеНаМаркет".
+            Дава информации за специфичен продукт во специфичен маркет.
+            Внесот на корисникот мора да е: "ИмеНаПроизвод, ИмеНаМаркет".
             """)
     public Optional<Product> findAllProductsByNameAndMarket(String query) {
         List<String> markets = service.findAllUniqueProductMarketNames();
@@ -97,23 +101,14 @@ public class LangChain4jTools {
 
         String productName = parts[0].trim();
 
-        String market = parts[1].trim();
-        market.toLowerCase();
-
+        String market = parts[1].trim().toLowerCase();
 
         if (!normalizedMarkets.contains(market)) {
             throw new IllegalArgumentException("Непознат маркет:" + market);
         }
 
+        market = market.substring(0, 1).toUpperCase() + market.substring(1).toLowerCase();
+
         return service.findByNameAndMarket(productName, market);
-    }
-
-
-    @Tool("""
-            It returns the most similar products to the user's query.
-            The function is ONLY called if 'findAllProductsByName' returns an empty list.
-            """)
-    public List<String> findClosestProductNames(String query) {
-        return lastSearchResults = aiHelper.findClosestProducts(query);
     }
 }

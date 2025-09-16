@@ -34,7 +34,7 @@
   
 This led me to scrap the idea of using local LLM's which were ran on docker as well, and go back to using APIs.
 
-I settled for the **GPT-4-Turbo** model, and for the embeddings I used **text-embedding-3-small**. I used a new database using pgvector to store the unique product names. From the ~30k records, there were ~20k unique product names. One solution was to use only one database and have a separate field for the vector representation of the text, but using OpenAi's embedding model it took me around 6 hours to embed all 20k unique names, so I chose a separate database.
+I settled for the **GPT-4o** model, and for the embeddings I used **text-embedding-3-small**. I used a new database using pgvector to store the unique product names. From the ~30k records, there were ~20k unique product names. One solution was to use only one database and have a separate field for the vector representation of the text, but using OpenAi's embedding model it took me around 6 hours to embed all 20k unique names, so I chose a separate database.
 
 ## Created By  
 - **Matej Bangievski (221233)**

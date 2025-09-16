@@ -2,12 +2,13 @@ package backend.langchain4j;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
-import dev.langchain4j.memory.chat.TokenWindowChatMemory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.TokenCountEstimator;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiTokenCountEstimator;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -19,8 +20,8 @@ import org.springframework.context.annotation.Configuration;
 public class LangChain4jConfig {
 
     @Bean
-    ChatMemoryProvider chatMemoryProvider(TokenCountEstimator tokenCountEstimator) {
-        return chatId -> TokenWindowChatMemory.withMaxTokens(1000, tokenCountEstimator);
+    ChatMemoryProvider chatMemoryProvider() {
+        return chatId -> MessageWindowChatMemory.withMaxMessages(20); // 10 user 10 agent ig
     }
 
     @Bean
@@ -54,7 +55,19 @@ public class LangChain4jConfig {
     public StreamingChatModel streamingChatModel() {
         return OpenAiStreamingChatModel.builder()
                 .apiKey(System.getenv("OPENAI_API_KEY"))
-                .modelName("gpt-4-turbo")
+                .modelName("gpt-4o")
+                .strictTools(true)
+                .logResponses(true)
+                .logRequests(true)
+                .temperature(0.0)
+                .build();
+    }
+
+    @Bean
+    public OpenAiChatModel openAiChatModel() {
+        return OpenAiChatModel.builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .modelName("gpt-4o")
                 .temperature(0.0)
                 .build();
     }

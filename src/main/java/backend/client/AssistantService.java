@@ -25,28 +25,6 @@ public class AssistantService {
         toolCallGuard.reset();
 
         return aiChatService.chat(chatId, userMessage)
-                .map(response -> {
-                    if (containsUnrecognizedToolCall(response)) {
-                        return "Sorry, I can only search Macedonian products.";
-                    }
-                    return response;
-                })
                 .doFinally(signalType -> toolCallGuard.clear());
     }
-
-    private boolean containsUnrecognizedToolCall(String response) {
-        if (!response.contains("tool_call")) {
-            return false;
-        }
-
-        Set<String> knownTools = Set.of(
-                "findAllProductsByName",
-                "findCheapestMarketForProduct",
-                "findAllProductsByNameAndMarket",
-                "findClosestProductNames"
-        );
-
-        return knownTools.stream().noneMatch(response::contains);
-    }
-
 }

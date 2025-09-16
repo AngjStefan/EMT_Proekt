@@ -7,8 +7,6 @@ import com.vaadin.hilla.BrowserCallable;
 import backend.service.ProductService;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-
 @BrowserCallable
 @AnonymousAllowed
 public class ProductWebService {
